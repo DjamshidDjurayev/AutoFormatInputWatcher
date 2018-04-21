@@ -2,7 +2,7 @@
 This repository contains an exampe project with input watcher for auto formatting digits in edit text. 
 #### It's fast and simpe in use, supports fast delete and insert. Enjoy using it. ####
 
-# Demo with coma: 
+# Demo with comma: 
 
 ![alt text][logo]
 

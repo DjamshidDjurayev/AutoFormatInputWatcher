@@ -20,7 +20,8 @@ This repository contains an exampe project with input watcher for auto formattin
 
     NumberAutoFormatWatcher numberAutoFormatWatcher = new NumberAutoFormatWatcher();
     numberAutoFormatWatcher.setFilter(filter);
-    numberAutoFormatWatcher.setDecimalNumbers(2);
+    numberAutoFormatWatcher.setDecimalFractions(2); // set decimal fractions
+    numberAutoFormatWatcher.setIntegerFractions(9); // set integer fractions
 
     input.setFilters(new InputFilter[] { filter });
     input.addTextChangedListener(numberAutoFormatWatcher);

@@ -56,7 +56,7 @@ This repository contains an exampe project with input watcher for auto formattin
       />
 ```
 
-# What's news: 
+# What's new: 
 ``` 
 -prevent symbols entering (while paste)
 -fixed crash (while paste symbols)

@@ -56,3 +56,8 @@ This repository contains an exampe project with input watcher for auto formattin
       />
 ```
 
+# What's news: 
+-prevent symbols entering (while paste)
+-fixed crash (while paste symbols)
+-set limit for integer fractions
+-set limit for decimal fractions

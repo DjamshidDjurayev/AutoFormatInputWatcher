@@ -18,7 +18,8 @@ public class MainActivity extends AppCompatActivity {
 
     numberAutoFormatWatcher = new NumberAutoFormatWatcher();
     numberAutoFormatWatcher.setFilter(filter);
-    numberAutoFormatWatcher.setDecimalNumbers(2);
+    numberAutoFormatWatcher.setDecimalFractions(2);
+    numberAutoFormatWatcher.setIntegerFractions(9);
 
     input.setFilters(new InputFilter[] { filter });
     input.addTextChangedListener(numberAutoFormatWatcher);
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
       String fullString = input.getText().toString() + source.toString();
 
-      int dotAmount = InputUtils.getSignCount(fullString, '.');
+      int dotAmount = InputUtils.getSignOccurance(fullString, '.');
 
       // preventing multiple dots
 

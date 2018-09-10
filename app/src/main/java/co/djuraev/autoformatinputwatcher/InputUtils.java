@@ -8,7 +8,45 @@ import java.util.Locale;
 public class InputUtils {
   private static final String NUMBER_FORMAT = "###,###,###";
   private static final String NUMBER_FORMAT_WITH_DECIMAL = "###,###.####";
-  private static final String SEPARATE_SIGN = " ";
+
+  private static int minIntegers = 1;
+  private static int minFractions = 2;
+  private static int maxFractions = 2;
+
+  public static String getCurrencySymbol(String currency) {
+    switch (currency.toUpperCase()) {
+      case "USD":
+        return "$";
+
+      default:
+        return currency;
+    }
+  }
+
+  public static String stripExceptNumbers(String str, boolean includePlus) {
+    StringBuilder res = new StringBuilder(str);
+    String phoneChars = "0123456789";
+    if (includePlus) {
+      phoneChars += "+";
+    }
+    for (int i = res.length() - 1; i >= 0; i--) {
+      if (!phoneChars.contains(res.substring(i, i + 1))) {
+        res.deleteCharAt(i);
+      }
+    }
+    return res.toString();
+  }
+
+  public static String stripSpaces(String str) {
+    StringBuilder res = new StringBuilder(str);
+    String amountChats = "0123456789.";
+    for (int i = res.length() - 1; i >= 0; i--) {
+      if (!amountChats.contains(res.substring(i, i + 1))) {
+        res.deleteCharAt(i);
+      }
+    }
+    return res.toString();
+  }
 
   public static int findDotPosition(String s) {
     char[] chars = s.toCharArray();
@@ -22,6 +60,10 @@ public class InputUtils {
     return 0;
   }
 
+  /**
+   * Format string with space (integers).
+   * */
+
   public static String formatWithoutDecimal(String digits) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     DecimalFormat formatter = (DecimalFormat) nf;
@@ -29,48 +71,50 @@ public class InputUtils {
     return formatter.format(new BigDecimal(digits)).replace(",", " ");
   }
 
-  public static String formatWithDecimal(String digits, int minInt, int minFrac, int maxFrac) {
+  /**
+   * Format string with space (fractions).
+   * */
+
+  public static String formatWithDecimal(String digits) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     DecimalFormat formatter = (DecimalFormat) nf;
     formatter.applyPattern(NUMBER_FORMAT_WITH_DECIMAL);
-    formatter.setMaximumFractionDigits(maxFrac);
-    formatter.setMinimumFractionDigits(minFrac);
-    formatter.setMinimumIntegerDigits(minInt);
-    return formatter.format(new BigDecimal(digits)).replace(",", SEPARATE_SIGN);
+    formatter.setMaximumFractionDigits(maxFractions);
+    formatter.setMinimumFractionDigits(minFractions);
+    formatter.setMinimumIntegerDigits(minIntegers);
+    return formatter.format(new BigDecimal(digits)).replace(",", " ");
   }
 
-  public static String formatWithDecimal(double digits, int minInt, int minFrac, int maxFrac) {
+  /**
+   * Format double with space (fractions)
+   * */
+
+  public static String formatWithDecimal(double digits) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     DecimalFormat formatter = (DecimalFormat) nf;
     formatter.applyPattern(NUMBER_FORMAT_WITH_DECIMAL);
-    formatter.setMaximumFractionDigits(maxFrac);
-    formatter.setMinimumFractionDigits(minFrac);
-    formatter.setMinimumIntegerDigits(minInt);
-    return formatter.format(new BigDecimal(digits)).replace(",", SEPARATE_SIGN);
-  }
-
-  public static String formatWithoutDecimal(double digits) {
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    DecimalFormat formatter = (DecimalFormat) nf;
-    formatter.applyPattern(NUMBER_FORMAT);
-    formatter.setMaximumFractionDigits(4);
-    formatter.setMinimumFractionDigits(2);
-    formatter.setMinimumIntegerDigits(1);
-    return formatter.format(new BigDecimal(digits)).replace(",", SEPARATE_SIGN);
+    formatter.setMaximumFractionDigits(maxFractions);
+    formatter.setMinimumFractionDigits(minFractions);
+    formatter.setMinimumIntegerDigits(minIntegers);
+    return formatter.format(new BigDecimal(digits)).replace(",", " ");
   }
 
   public static String extractDigits(String input) {
     return input.replaceAll(" ", "");
   }
 
-  public static int getSignCount(String input, char sign) {
+  private static int getCharOccurrence(String input, char c) {
     int occurrence = 0;
     char[] chars = input.toCharArray();
     for (char thisChar : chars) {
-      if (thisChar == sign) {
+      if (thisChar == c) {
         occurrence++;
       }
     }
     return occurrence;
+  }
+
+  public static int getSignOccurance(String input, char sign) {
+    return getCharOccurrence(input, sign);
   }
 }

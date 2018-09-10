@@ -5,16 +5,25 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 
 class NumberAutoFormatWatcher implements TextWatcher {
-  private int decimalNumbers = 2; // by default 2
+  private int decimalFractions = 2; // by default 2
+  private int integerFractions = 9; // by default 9
   private boolean isFormatting;
   private InputFilter filter;
 
-  private int getDecimalNumbers() {
-    return decimalNumbers;
+  public int getIntegerFractions() {
+    return integerFractions;
   }
 
-  public void setDecimalNumbers(int decimalNumbers) {
-    this.decimalNumbers = decimalNumbers;
+  public void setIntegerFractions(int integerFractions) {
+    this.integerFractions = integerFractions;
+  }
+
+  private int getDecimalFractions() {
+    return decimalFractions;
+  }
+
+  public void setDecimalFractions(int decimalFractions) {
+    this.decimalFractions = decimalFractions;
   }
 
   private InputFilter getFilter() {
@@ -48,10 +57,8 @@ class NumberAutoFormatWatcher implements TextWatcher {
   }
 
   private void inputFormat(Editable input) {
+    input.setFilters(new InputFilter[] { filter });
 
-    input.setFilters(new InputFilter[] { getFilter() });
-
-    // if input starts with dot insert 0.
     if (input.toString().startsWith(".") && input.toString().length() == 1) {
       input.clear();
       input.append("0.");
@@ -60,21 +67,55 @@ class NumberAutoFormatWatcher implements TextWatcher {
 
     if (input.toString().contains(".")) {
 
-      // split amount with the dot
       String[] splicedText = input.toString().split("\\.");
       if (splicedText.length == 0) {
         return;
       }
 
-      // limit for decimal digits input
-      if (splicedText.length > 1 && splicedText[1].length() >= (getDecimalNumbers() + 1)) {
-        int dotPosition = InputUtils.findDotPosition(input.toString());
-        input.delete(dotPosition + (getDecimalNumbers() + 1), input.toString().length());
-        return;
+      String strippedIntegerText = InputUtils.stripSpaces(splicedText[0]);
+
+      // set limit for integer input with decimals
+      if (strippedIntegerText.length() > integerFractions) {
+        strippedIntegerText = strippedIntegerText.substring(0, integerFractions);
+        strippedIntegerText = InputUtils.formatWithoutDecimal(strippedIntegerText);
+
+        try {
+          input.replace(0, splicedText[0].length(), strippedIntegerText);
+        } catch (NumberFormatException nfe) {
+          input.clear();
+        }
+
+        // when pasting value like 1 000 000 000.999 we should check for digits limitations
+        // both integers and decimals
+        if (!(splicedText.length > 1 && splicedText[1].length() > decimalFractions)) {
+          return;
+        }
       }
 
-      // formatting digits with dot
-      String digits = InputUtils.extractDigits(splicedText[0]);
+      String strippedDecimalText = "";
+
+      if (splicedText.length > 1) {
+        strippedDecimalText = InputUtils.stripSpaces(splicedText[1]);
+      }
+
+      // set limit for decimal input
+      if (strippedDecimalText.length() > decimalFractions) {
+        int dotPosition = InputUtils.findDotPosition(input.toString());
+        strippedDecimalText = strippedDecimalText.substring(0, decimalFractions);
+
+        try {
+          input.replace(dotPosition + 1, input.length(), strippedDecimalText);
+        } catch (NumberFormatException nfe) {
+          input.clear();
+        }
+
+        return;
+      } else {
+        int newDotPosition = InputUtils.findDotPosition(input.toString());
+        input.replace(newDotPosition + 1, input.length(), strippedDecimalText);
+      }
+
+      String digits = InputUtils.stripSpaces(splicedText[0]);
       int dotPosition = InputUtils.findDotPosition(input.toString());
       try {
         String formatted = InputUtils.formatWithoutDecimal(digits);
@@ -83,8 +124,21 @@ class NumberAutoFormatWatcher implements TextWatcher {
         input.clear();
       }
     } else {
-      // formatting digits without dot
-      String digits = InputUtils.extractDigits(input.toString());
+      String digits = InputUtils.stripSpaces(input.toString());
+
+      // set limit for integer input without decimals
+      if (digits.length() > integerFractions) {
+        digits = digits.substring(0, integerFractions);
+        digits = InputUtils.formatWithoutDecimal(digits);
+
+        try {
+          input.replace(0, input.length(), digits);
+        } catch (NumberFormatException nfe) {
+          input.clear();
+        }
+        return;
+      }
+
       try {
         String formatted = InputUtils.formatWithoutDecimal(digits);
         input.replace(0, input.length(), formatted);
@@ -93,4 +147,5 @@ class NumberAutoFormatWatcher implements TextWatcher {
       }
     }
   }
+
 }
